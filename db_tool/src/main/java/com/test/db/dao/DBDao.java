@@ -15,8 +15,8 @@ public class DBDao {
 	public DBDataSource  dBDataSource;
 	
 	public List<String> getConnectionInfo() {
-		StringBuilder sbQuery = new StringBuilder("SELECT DISTINCT DB_COMPANY FROM MY_SITE_PROFILES ");
-		sbQuery.append("WHERE DB_DATASOURCE LIKE '%'||DB_COMPANY||'%' AND DB_COMPANY IN ('BEL','TESTPWD','BTM','IRCTCPG') ORDER BY DB_COMPANY ASC ");
+		StringBuilder sbQuery = new StringBuilder("SELECT DISTINCT DB_CONNECTION FROM CONNECTION_PROFILES ");
+		sbQuery.append("WHERE DB_DATASOURCE LIKE '%'||DB_CONNECTION||'%' AND DB_CONNECTION IN ('CON1','CON2','CON3','CON4') ORDER BY DB_CONNECTION ASC ");
 		return dBDataSource.executeSQL(sbQuery.toString(), Type.LIST);
 	}
 

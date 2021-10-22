@@ -25,14 +25,10 @@ public class DBConfig implements WebMvcConfigurer{
 	@Bean
 	public DataSource getDataSource() {
 		BasicDataSource dataSrc = new BasicDataSource();
-//		dataSrc.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
-//		dataSrc.setUrl("jdbc:hsqldb:hsql://localhost/");
-//		dataSrc.setUsername("SA");
-//		dataSrc.setPassword("");
-		dataSrc.setDriverClassName("oracle.jdbc.OracleDriver");
-		dataSrc.setUrl("jdbc:oracle:thin:@10.10.9.130:1521:twasl");
-		dataSrc.setUsername("commontable4");
-		dataSrc.setPassword("NB5QS");
+		dataSrc.setDriverClassName("");//Specify DRIVER CLASS NAME
+		dataSrc.setUrl("");//Specify DB URL
+		dataSrc.setUsername("");//Specify DB USERNAME
+		dataSrc.setPassword("");//Specify DB PASSWORD
 		dataSrc.setMaxTotal(1000);
 		dataSrc.setMaxIdle(1);
 		dataSrc.setMaxConnLifetimeMillis(40000);
