@@ -43,10 +43,12 @@ $(document).ready(function(){
 					    		$("#outputContainer").html("").append(displayData);
 				    		}else if(data.recordsModified != null){
 				    			$("#outputContainer").html("").append("<b>"+data.recordsModified+"</b>");
+				    		}else if(data.SqlException != null){
+				    			$("#outputContainer").html("").append("<b>"+data.SqlException+"</b>");
 				    		}
 				    	}
 					},error: function() {
-						alert("error");
+						$("#outputContainer").html("").append("<b>Error</b>");
 					}
 			});
 		});
@@ -56,9 +58,9 @@ $(document).ready(function(){
 			url: dbUrl+"/rollback",
 			type: "post",
 			success: function(data) {
-				alert("rollback success");
+				$("#outputContainer").html("").append("<b>"+data+"</b>");
 			},error: function(){
-				alert("rollback error");
+				$("#outputContainer").html("").append("<b>Rollback error</b>");
 			}
 		});
 	});
@@ -68,9 +70,9 @@ $(document).ready(function(){
 			url: dbUrl+"/commit",
 			type: "post",
 			success: function(data) {
-				alert("commit success");
+				$("#outputContainer").html("").append("<b>"+data+"</b>");
 			},error: function(){
-				alert("commit error");
+				$("#outputContainer").html("").append("<b>Commit error</b>");
 			}
 		});
 	});

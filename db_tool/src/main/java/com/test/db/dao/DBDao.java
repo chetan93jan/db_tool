@@ -1,7 +1,6 @@
 package com.test.db.dao;
 
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -20,20 +19,20 @@ public class DBDao {
 		return dBDataSource.executeSQL(sbQuery.toString(), Type.LIST);
 	}
 
-	public List<Map<String,Object>> executeQry(String executeQry) {
+	public <T>T executeQry(String executeQry) {
 		return dBDataSource.executeSQL(executeQry, Type.LIST_MAP);
 	}
 
-	public int executeUpdate(String executeQry) {
+	public <T>T executeUpdate(String executeQry) {
 		return dBDataSource.executeSQL(executeQry, Type.INTEGER);
 	}
 
-	public void commit() {
-		dBDataSource.commit();
+	public boolean commit() {
+		return dBDataSource.commit();
 	}
 
-	public void rollback() {
-		dBDataSource.rollback();
+	public boolean rollback() {
+		return dBDataSource.rollback();
 //		dBDataSource.defaultReadOnly();
 	}
 

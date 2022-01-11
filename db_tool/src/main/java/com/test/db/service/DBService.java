@@ -5,15 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpSession;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-
 import com.test.db.dao.DBDao;
+import com.test.db.utils.Utils;
 
 @Component
 public class DBService {
@@ -21,11 +19,8 @@ public class DBService {
 	@Autowired
 	public DBDao dbDao;
 	
-//	@Autowired
-//	public DBScope dbScope;
-//	
-//	@Autowired
-//	public TransactionDefinition transactionDefinition;
+	@Autowired
+	public HttpSession session;
 
 	public List<String> getConnectionInfo() {
 		return dbDao.getConnectionInfo();
@@ -41,23 +36,45 @@ public class DBService {
 	}
 	
 	private String executeUpdate(String executeQry) {
+		int iRecords = 0;
 		String exeQry = executeQry.toUpperCase();
 		JSONObject json = new JSONObject();
-		int iRecords = dbDao.executeUpdate(executeQry);
-		if(exeQry.contains("INSERT")) {
-			json.put("recordsModified", "Total records inserted:= "+iRecords);
-		}else if(exeQry.contains("UPDATE")) {
-			json.put("recordsModified", "Total records updated:= "+iRecords);
-		}else if(exeQry.contains("DELETE")) {
-			json.put("recordsModified", "Total records deleted:= "+iRecords);
-		} 
+		Object obj = dbDao.executeUpdate(executeQry);
+		if(obj != null) {
+			if (obj instanceof String) {
+				String sQryResult = (String) obj;
+				json = new JSONObject();
+				json.put("SqlException", sQryResult);
+			}else if(obj instanceof Integer) {
+				iRecords = (int) obj;
+				session.setAttribute("IsExecuted", "Executed");
+				if(exeQry.contains("INSERT")) {
+					json.put("recordsModified", "Total records inserted:= "+iRecords);
+				}else if(exeQry.contains("UPDATE")) {
+					json.put("recordsModified", "Total records updated:= "+iRecords);
+				}else if(exeQry.contains("DELETE")) {
+					json.put("recordsModified", "Total records deleted:= "+iRecords);
+				} 
+			}
+		}
 		return json.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	private String execute(String executeQry) {
-		JSONObject json = new JSONObject();
+		JSONObject json = null;
 		List<String> mHeaderKeys = null;
-		List<Map<String,Object>> lRec = dbDao.executeQry(executeQry);
+		List<Map<String,Object>> lRec = null;
+		Object obj = dbDao.executeQry(executeQry);
+		if(obj != null) {
+			if (obj instanceof String) {
+				String sQryResult = (String) obj;
+				json = new JSONObject();
+				json.put("SqlException", sQryResult);
+			}else if(obj instanceof List<?>) {
+				lRec = (List<Map<String, Object>>) obj;
+			}
+		}
 
 		if(lRec!= null && !lRec.isEmpty()) {
 			mHeaderKeys = lRec.get(0).entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toCollection(ArrayList::new));
@@ -69,13 +86,21 @@ public class DBService {
 	}
 	
 	public String rollBack() {
-		dbDao.rollback();
-		return "Rollback Success";
+		boolean bResult = false;
+		if(!Utils.isEmpty(Utils.getValue(session, "IsExecuted", ""))) {
+			bResult = dbDao.rollback();
+			session.removeAttribute("IsExecuted");
+		} 
+		return bResult ? "Rollback Success" : "Rollback Falied";
 	}
 
 	public String commit() {
-		dbDao.commit();
-		return "Commit Success";
+		boolean bResult = false;
+		if(!Utils.isEmpty(Utils.getValue(session, "IsExecuted", ""))) {
+			bResult = dbDao.commit();
+			session.removeAttribute("IsExecuted");
+		} 
+		return bResult ? "Commit Success" : "Commit Falied";
 	}
 
 }

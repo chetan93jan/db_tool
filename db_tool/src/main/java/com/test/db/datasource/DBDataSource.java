@@ -23,6 +23,8 @@ public class DBDataSource {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	
+	
 	public enum Type {
 		INTEGER,
 		LIST_MAP,
@@ -33,15 +35,16 @@ public class DBDataSource {
 	public <T>T executeSQL(String sqlQuery, Type type) {
 		Object oResult = null;
 		if(jdbcTemplate != null) {
-			switch(type) {
-			case INTEGER: 
+			try {
+				switch(type) {
+				case INTEGER: 
 				{
 					oResult = jdbcTemplate.execute(sqlQuery, (PreparedStatement ps) -> {
 						return ps.executeUpdate();
 					});
 				}
 				break;
-			case LIST_MAP:
+				case LIST_MAP:
 				{
 					List<Map<String,Object>> lRet = new ArrayList<Map<String,Object>>();
 					oResult = jdbcTemplate.query(sqlQuery, (ResultSet rs) -> {
@@ -60,7 +63,7 @@ public class DBDataSource {
 					});
 				}
 				break;
-			case LIST:
+				case LIST:
 				{
 					List<Object> lRet = new ArrayList<Object>();
 					oResult = jdbcTemplate.query(sqlQuery, (ResultSet rs) -> {
@@ -76,45 +79,58 @@ public class DBDataSource {
 					});
 				}
 				break;
-			default:
-				oResult = "";
-				break;
-			}
-		}
+				default:
+					oResult = "";
+					break;
+				}
 
-		if(oResult == null) {
-			switch(type) {
-			case INTEGER: 
-				oResult = 0;
-			break;
-			case LIST_MAP:
-			case LIST:
-				oResult = Collections.EMPTY_LIST;
-				break;
-			default:
-				oResult = "";
-				break;
+				if(oResult == null) {
+					switch(type) {
+					case INTEGER: 
+						oResult = 0;
+						break;
+					case LIST_MAP:
+					case LIST:
+						oResult = Collections.EMPTY_LIST;
+						break;
+					default:
+						oResult = "";
+						break;
+					}
+				}
+			}
+			catch(Exception e) {
+				oResult = e.getCause().getMessage();
+				//e.printStackTrace();
 			}
 		}
 		return (T) oResult;
 	}
 
-	public void commit() {
+	public boolean commit() {
+		boolean bState = false;
 		DataSource dataSource = (BasicDataSource) jdbcTemplate.getDataSource();
 		try {
-			dataSource.getConnection().commit();
+//				dataSource.getConnection().setHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT);
+				dataSource.getConnection().commit();
+				bState = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return bState;
 	}
 	
-	public void rollback() {
+	public boolean rollback() {
+		boolean bState = false;
 		DataSource dataSource = (BasicDataSource) jdbcTemplate.getDataSource();
 		try {
-			dataSource.getConnection().rollback();
+//				dataSource.getConnection().setHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT);
+				dataSource.getConnection().rollback();
+				bState = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return bState;
 	}
 
 }
