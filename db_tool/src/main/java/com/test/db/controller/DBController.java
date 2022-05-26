@@ -18,7 +18,8 @@ public class DBController {
 	
 	@GetMapping("/")
 	public String login() {
-		return "index";
+		return "login";
+		//return "index";
 	}
 	
 	@GetMapping("/dbDashboard")
