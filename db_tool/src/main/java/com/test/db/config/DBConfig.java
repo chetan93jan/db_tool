@@ -32,10 +32,6 @@ public class DBConfig implements WebMvcConfigurer{
 //		dataSrc.setUrl("jdbc:hsqldb:hsql://localhost/");
 //		dataSrc.setUsername("SA");
 //		dataSrc.setPassword("");
-		dataSrc.setDriverClassName("oracle.jdbc.OracleDriver");
-		dataSrc.setUrl("jdbc:oracle:thin:@192.168.0.112:1521:asldb");
-		dataSrc.setUsername("commontable4");
-		dataSrc.setPassword("NB5QS");
 		dataSrc.setMaxTotal(1000);
 		dataSrc.setMaxIdle(1);
 		dataSrc.setMaxConnLifetimeMillis(40000);
